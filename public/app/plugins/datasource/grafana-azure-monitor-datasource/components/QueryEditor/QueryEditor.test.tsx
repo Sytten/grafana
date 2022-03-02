@@ -9,6 +9,7 @@ import createMockDatasource from '../../__mocks__/datasource';
 import { AzureQueryType } from '../../types';
 import { invalidNamespaceError } from '../../__mocks__/errors';
 import * as ui from '@grafana/ui';
+import * as deprecatedUtils from '../deprecated/utils';
 
 // Have to mock CodeEditor because it doesnt seem to work in tests???
 jest.mock('@grafana/ui', () => ({
@@ -130,5 +131,20 @@ describe('Azure Monitor QueryEditor', () => {
     await ui.selectOptionInTest(metrics, 'Logs');
 
     expect(screen.queryByText('Application Insights')).toBeInTheDocument();
+  });
+
+  it('renders a new query editor for metrics in builds greater than grafana 9', async () => {
+    const mockDatasource = createMockDatasource();
+    const mockQuery = {
+      ...createMockQuery(),
+      queryType: AzureQueryType.AzureMonitor,
+    };
+
+    jest.spyOn(deprecatedUtils, 'gtGrafana9').mockReturnValue(true);
+
+    render(<QueryEditor query={mockQuery} datasource={mockDatasource} onChange={() => {}} onRunQuery={() => {}} />);
+    await waitFor(() =>
+      expect(screen.getByTestId('azure-monitor-metrics-query-editor-with-resource-picker')).toBeInTheDocument()
+    );
   });
 });

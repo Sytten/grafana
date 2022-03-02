@@ -10,6 +10,7 @@ import {
   AzureDataSourceJsonData,
 } from '../../types';
 import MetricsQueryEditor from '../MetricsQueryEditor';
+import NewMetricsQueryEditor from '../NewMetricsQueryEditor/MetricsQueryEditor';
 import QueryTypeField from './QueryTypeField';
 import useLastError from '../../utils/useLastError';
 import LogsQueryEditor from '../LogsQueryEditor';
@@ -19,6 +20,7 @@ import InsightsAnalyticsEditor from '../InsightsAnalyticsEditor';
 import { Space } from '../Space';
 import { debounce } from 'lodash';
 import usePreparedQuery from './usePreparedQuery';
+import { gtGrafana9 } from '../deprecated/utils';
 
 export type AzureMonitorQueryEditorProps = QueryEditorProps<
   AzureMonitorDatasource,
@@ -92,6 +94,9 @@ const EditorForQueryType: React.FC<EditorForQueryTypeProps> = ({
 }) => {
   switch (query.queryType) {
     case AzureQueryType.AzureMonitor:
+      if (gtGrafana9()) {
+        return <NewMetricsQueryEditor />;
+      }
       return (
         <MetricsQueryEditor
           subscriptionId={subscriptionId}
